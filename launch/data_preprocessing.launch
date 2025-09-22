@@ -1,0 +1,9 @@
+<launch>
+
+
+    <rosparam command="load" file="$(find data_preprocessing)/config/data_preprocessing.yaml" />
+
+    <node pkg="data_preprocessing" type="data_preprocessing" name="data_preprocessing" output="screen" /> 
+
+
+</launch>

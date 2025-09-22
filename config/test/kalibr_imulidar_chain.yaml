@@ -1,0 +1,10 @@
+%YAML:1.0 # need to specify the file type at the top!
+
+lidar0:
+  T_imu_lidar:
+    - [1.0, 0.0, 0.0, -0.011]
+    - [0.0, 1.0, 0.0, -0.02329]
+    - [0.0, 0.0, 1.0, 0.04412]
+    - [0.0, 0.0, 0.0, 1.0]
+  rostopic: /livox/lidar
+  timeshift_lidar_imu: 0.0
