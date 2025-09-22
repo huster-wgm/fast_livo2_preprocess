@@ -24,7 +24,7 @@
 #include <pcl/common/transforms.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
-#include "livox_ros_driver/CustomMsg.h"
+#include "livox_ros_driver2/CustomMsg.h"
     double g;
     std::string topic_imu_in;
     std::string topic_imu_out;

@@ -64,6 +64,7 @@ void imageCallback_1(const sensor_msgs::CompressedImage::ConstPtr& msg)
     image_msg_->header = msg->header;    
     pub_camera_undistort_1.publish(image_msg_);
 }
+
 void lidarCallback(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     
     // 将 PointCloud2 转换为自定义的 PCL 点云类型
@@ -77,13 +78,13 @@ void lidarCallback(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     }
     // 发布转换后的自定义点云消息
     if(pub_lidar.getNumSubscribers() != 0){
-        livox_ros_driver::CustomMsg custom_msg;
+        livox_ros_driver2::CustomMsg custom_msg;
         custom_msg.header = msg->header;
         custom_msg.point_num = cloud.points.size();
         custom_msg.timebase = msg->header.stamp.toNSec();
         for (const auto& pt : cloud.points) {
 
-            livox_ros_driver::CustomPoint custom_point;
+            livox_ros_driver2::CustomPoint custom_point;
             custom_point.x = pt.x;
             custom_point.y = pt.y;
             custom_point.z = pt.z;
@@ -154,7 +155,7 @@ int main(int argc, char* argv[]) {
     sub_lidar = nh.subscribe<sensor_msgs::PointCloud2>(topic_lidar_in, 10000, &lidarCallback );
     // pub_lidar  = nh.advertise<sensor_msgs::PointCloud2>(topic_lidar_out, 100000);
     pub_lidar_time_align  = nh.advertise<sensor_msgs::PointCloud2>(topic_lidar_time_align, 100000);    
-    pub_lidar  = nh.advertise<livox_ros_driver::CustomMsg>(topic_lidar_out, 100000);
+    pub_lidar  = nh.advertise<livox_ros_driver2::CustomMsg>(topic_lidar_out, 100000);
     sub_camera_0 = nh.subscribe<sensor_msgs::CompressedImage>(topic_camera_in[0], 10000, &imageCallback_0 );
     sub_camera_1 = nh.subscribe<sensor_msgs::CompressedImage>(topic_camera_in[1], 10000, &imageCallback_1 );    
 

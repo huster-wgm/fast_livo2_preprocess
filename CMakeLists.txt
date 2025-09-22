@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   pcl_ros  
   cv_bridge  
-  livox_ros_driver
+  livox_ros_driver2
 
 )
 
