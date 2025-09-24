@@ -13,6 +13,7 @@ lidar0:
     0, 0, 0, 1]
   rostopic: /livox/lidar
 max_cameras: 2
+refer_cam_id: 0 # or 1
 cam0:
   T_lidar_cam: [
     0.8475287815717099, -0.4456535402996677, 0.288249694580835, 0.02192650352544739,

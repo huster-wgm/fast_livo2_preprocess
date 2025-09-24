@@ -1,6 +1,7 @@
 #include "main.h"
  
-std::list<double> camera_time;
+std::list<double> camera0_time;
+std::list<double> camera1_time;
 std::list<double> lidar_time;
 std::list<pcl::PointCloud<edu_ros::Point>> lidar_pc;
 std::list<std_msgs::Header> lidar_header;
@@ -17,7 +18,7 @@ void IMUCallBack(const sensor_msgs::Imu::ConstPtr &msg_in) {
 void imageCallback_0(const sensor_msgs::CompressedImage::ConstPtr& msg)
 {
     if(pub_lidar_time_align.getNumSubscribers() != 0)
-        camera_time.push_back(msg->header.stamp.toSec());
+        camera0_time.push_back(msg->header.stamp.toSec());
 
     cv_bridge::CvImagePtr cv_ptr;
     try
@@ -43,7 +44,10 @@ void imageCallback_0(const sensor_msgs::CompressedImage::ConstPtr& msg)
 
 void imageCallback_1(const sensor_msgs::CompressedImage::ConstPtr& msg)
 {
-   cv_bridge::CvImagePtr cv_ptr;
+    if(pub_lidar_time_align.getNumSubscribers() != 0)
+        camera1_time.push_back(msg->header.stamp.toSec());
+
+    cv_bridge::CvImagePtr cv_ptr;
     try
     {
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
@@ -107,6 +111,8 @@ int main(int argc, char* argv[]) {
 
     int num_camera;
     nh.param<int>("max_cameras", num_camera, 2);
+    int refer_cam_id;
+    nh.param<int>("refer_cam_id", refer_cam_id, 0);
 
 
     for(int i=0; i<num_camera; i++){
@@ -137,8 +143,8 @@ int main(int argc, char* argv[]) {
         cv::Mat map1, map2;
         cv::Mat undistortImg;
         cv::Size imageSize(out_resolution[i][0], out_resolution[i][1]);
-        cv::Mat R = cv::Mat::eye(3, 3, CV_32F);
-        cv::Mat t_vec = (cv::Mat_<double>(3, 1) << 0, 0, 0);
+        // cv::Mat R = cv::Mat::eye(3, 3, CV_32F);
+        // cv::Mat t_vec = (cv::Mat_<double>(3, 1) << 0, 0, 0);
         cv::fisheye::initUndistortRectifyMap(camera_matrix, distortion_coeff, cv::Mat(), camera_matrix, imageSize, CV_16SC2, map1, map2);
         std::vector<cv::Mat> map_buf;
         map_buf.push_back(map1);
@@ -154,8 +160,9 @@ int main(int argc, char* argv[]) {
 
     sub_lidar = nh.subscribe<sensor_msgs::PointCloud2>(topic_lidar_in, 10000, &lidarCallback );
     // pub_lidar  = nh.advertise<sensor_msgs::PointCloud2>(topic_lidar_out, 100000);
-    pub_lidar_time_align  = nh.advertise<sensor_msgs::PointCloud2>(topic_lidar_time_align, 100000);    
     pub_lidar  = nh.advertise<livox_ros_driver2::CustomMsg>(topic_lidar_out, 100000);
+    pub_lidar_time_align  = nh.advertise<sensor_msgs::PointCloud2>(topic_lidar_time_align, 100000);    
+
     sub_camera_0 = nh.subscribe<sensor_msgs::CompressedImage>(topic_camera_in[0], 10000, &imageCallback_0 );
     sub_camera_1 = nh.subscribe<sensor_msgs::CompressedImage>(topic_camera_in[1], 10000, &imageCallback_1 );    
 
@@ -170,17 +177,22 @@ int main(int argc, char* argv[]) {
 
     ros::Rate rate(200);
 
-    double camera_last=0;
+    double camera_last = 0.0;
+
+    std::list<double>* camera_time_ptr;
+    camera_time_ptr = refer_cam_id == 0 ? &camera0_time : &camera1_time;
+
     while (ros::ok()) {
         ros::spinOnce();
 
-        if(camera_time.size()>0 && lidar_time.size()>1){
-            if(lidar_time.front()>camera_time.front()){
-                camera_last = camera_time.front();
-                camera_time.pop_front();
+        if(camera_time_ptr->size()>0 && lidar_time.size()>1){
+            if(lidar_time.front()>camera_time_ptr->front()){
+                camera_last = camera_time_ptr->front();
+
+                camera_time_ptr->pop_front();
                 continue;
             }
-            double camera_current = camera_time.front();
+            double camera_current = camera_time_ptr->front();
 
             pcl::PointCloud<edu_ros::Point> out_buf;  
             auto lidar_ = lidar_pc.begin();    
@@ -206,7 +218,7 @@ int main(int argc, char* argv[]) {
                 pub_lidar_time_align.publish(tempCloud1);
 
             camera_last = camera_current;
-            camera_time.pop_front();
+            camera_time_ptr->pop_front();
             lidar_time.pop_front();
             lidar_header.pop_front();
             lidar_pc.pop_front();
