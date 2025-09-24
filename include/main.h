@@ -55,7 +55,7 @@
 
     std::vector<std::vector<double>> distortion_coeffs;
     std::vector<std::vector<double>> intrinsics;
-    std::vector<std::vector<int>> resolution;    
+    std::vector<std::vector<int>> in_resolution;    
     std::vector<std::vector<int>> out_resolution;    
 
     std::vector<std::vector<cv::Mat>> undistor_map;    
