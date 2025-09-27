@@ -1,8 +1,8 @@
 topic_imu_in: /livox/imu
 topic_imu_out: /imu/data
 lidar:
-  topic_lidar_in: /livox/lidar
-  topic_lidar_out: /livox/raw
+  topic_lidar_in: /livox/raw
+  topic_lidar_out: /livox/lidar
   topic_lidar_time_align: /livox/align
 g: 9.80511
 lidar0:
