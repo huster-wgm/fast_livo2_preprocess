@@ -27,10 +27,10 @@ cam0:
   intrinsics: [1192.224354048293, 1192.167758588196, 1468.748183885837, 1993.452668828858]
   in_resolution: [3040, 4032]
   rostopic: /camera/left/jpeg
-  timeshift_cam_imu: 0.0
   rostopic_out: /camera/left/jpeg_1k/data
   rostopic_out_undistort: /camera/left/jpeg_1k/undistort
   out_resolution: [760, 1008]
+  timeshift_cam_imu: 0.0
 cam1:
   T_lidar_cam: [
     -0.8525174813337451, -0.4288519163509538, -0.2988293991928758, -0.02160007224345361,
