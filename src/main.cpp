@@ -113,6 +113,8 @@ int main(int argc, char* argv[]) {
     nh.param<int>("max_cameras", num_camera, 2);
     int refer_cam_id;
     nh.param<int>("refer_cam_id", refer_cam_id, 0);
+    std::string distortion_model;
+
 
 
     for(int i=0; i<num_camera; i++){
@@ -129,6 +131,7 @@ int main(int argc, char* argv[]) {
         nh.param<std::string>("cam"+cam_id+"/rostopic",topic_camera_in[i], "x");
         nh.param<std::string>("cam"+cam_id+"/rostopic_out",topic_camera_out[i], "x");
         nh.param<std::string>("cam"+cam_id+"/rostopic_out_undistort",topic_camera_undistort_out[i], "x");
+        nh.param<std::string>("cam"+cam_id+"/distortion_model", distortion_model, "equidistant");
         nh.param<std::vector<double>>("cam"+cam_id+"/distortion_coeffs",distortion_coeffs[i], std::vector<double>());
         nh.param<std::vector<double>>("cam"+cam_id+"/intrinsics",intrinsics[i], std::vector<double>());
         nh.param<std::vector<int>>("cam"+cam_id+"/in_resolution",in_resolution[i], std::vector<int>());
@@ -139,6 +142,11 @@ int main(int argc, char* argv[]) {
         k2 = ((double)out_resolution[i][1])/((double)in_resolution[i][1]);        
         cv::Mat camera_matrix = (cv::Mat_<double>(3, 3) << intrinsics[i][0]*k1, 0.0, intrinsics[i][2]*k1, 0.0, intrinsics[i][1]*k2, intrinsics[i][3]*k2, 0.0, 0.0, 1.0);
         cv::Mat distortion_coeff = (cv::Mat_<double>(1, 4) << distortion_coeffs[i][0], distortion_coeffs[i][1], distortion_coeffs[i][2], distortion_coeffs[i][3]); 
+        
+        if (distortion_model == "polynomial"){
+            // set distortion coefficient to zeros
+            distortion_coeff = (cv::Mat_<double>(1, 4) << 0.0, 0.0, 0.0, 0.0);
+        }
 
         cv::Mat map1, map2;
         cv::Mat undistortImg;
